@@ -1,6 +1,3 @@
-# Sistem Python
 python3.11-distutils
 python3.11-lib2to3
-
-# OpenGL library
 libgl1
