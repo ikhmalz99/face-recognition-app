@@ -1,3 +1,0 @@
-python3.11-distutils
-python3.11-lib2to3
-libgl1
