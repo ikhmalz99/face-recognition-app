@@ -44,17 +44,17 @@ def draw_box_with_name_simple(image_np, label, face_area):
     return img
 
 st.set_page_config(page_title="LFW Face Verification", layout="centered")
-st.title("Face Recognition menggunakan VGG-Face + Augmentasi (Versi Ringan)")
-st.write("Aplikasi ini dioptimumkan menggunakan backend 'OpenCV' untuk mengelakkan isu crash RAM di server cloud.")
+st.title("Face Recognition using VGG-Face + Augmentation (Lightweight Version)")
+st.write("This app is optimized using the 'OpenCV' backend to prevent RAM crash issues on cloud servers.")
 
-img1_file = st.file_uploader("Muat Naik Gambar Pertama", type=["jpg", "jpeg", "png"])
-img2_file = st.file_uploader("Muat Naik Gambar Kedua", type=["jpg", "jpeg", "png"])
+img1_file = st.file_uploader("Upload First Image", type=["jpg", "jpeg", "png"])
+img2_file = st.file_uploader("Upload Second Image", type=["jpg", "jpeg", "png"])
 
 if img1_file and img2_file:
     img1 = Image.open(img1_file).convert("RGB")
     img2 = Image.open(img2_file).convert("RGB")
 
-    st.image([img1, img2], caption=["Gambar 1 (Asal)", "Gambar 2 (Asal)"], width=250)
+    st.image([img1, img2], caption=["Image 1 (Original)", "Image 2 (Original)"], width=250)
 
     img1_np = np.array(img1)
     img2_np = np.array(img2)
@@ -62,7 +62,7 @@ if img1_file and img2_file:
     img1_aug = augment_image(img1_np)
     img2_aug = augment_image(img2_np)
 
-    with st.spinner("DeepFace sedang menganalisis & mengesahkan wajah..."):
+    with st.spinner("DeepFace is analyzing & verifying faces..."):
         try:
             res1 = DeepFace.verify(
                 img1_np, img2_np, 
@@ -81,19 +81,19 @@ if img1_file and img2_file:
             avg_distance = (res1["distance"] + res2["distance"]) / 2
             match = avg_distance < 0.3
 
-            st.success("Proses Pengesahan Selesai!")
+            st.success("Verification Process Completed!")
             
             col1, col2 = st.columns(2)
             with col1:
                 if match:
-                    st.metric(label="Keputusan Padanan", value="PADAN (SAMA)", delta="Wajah Identik")
+                    st.metric(label="Match Result", value="MATCH (SAME)", delta="Identical Face")
                 else:
-                    st.metric(label="Keputusan Padanan", value="TIDAK PADAN", delta="- Berbeza Orang", delta_color="inverse")
+                    st.metric(label="Match Result", value="NO MATCH", delta="- Different Person", delta_color="inverse")
             
             with col2:
-                st.write(f"**Purata Jarak:** `{avg_distance:.4f}`")
-                st.write(f"Jarak Asal: `{res1['distance']:.4f}`")
-                st.write(f"Jarak Augmentasi: `{res2['distance']:.4f}`")
+                st.write(f"**Average Distance:** `{avg_distance:.4f}`")
+                st.write(f"Original Distance: `{res1['distance']:.4f}`")
+                st.write(f"Augmented Distance: `{res2['distance']:.4f}`")
 
             face_area1 = res1["facial_areas"]["img1"]
             face_area2 = res1["facial_areas"]["img2"]
@@ -101,10 +101,10 @@ if img1_file and img2_file:
             boxed1 = draw_box_with_name_simple(img1_np, os.path.basename(img1_file.name), face_area1)
             boxed2 = draw_box_with_name_simple(img2_np, os.path.basename(img2_file.name), face_area2)
 
-            st.subheader("Hasil Pengesanan Wajah")
-            st.image([boxed1, boxed2], caption=["Wajah 1 Dikesan", "Wajah 2 Dikesan"], width=300)
+            st.subheader("Face Detection Results")
+            st.image([boxed1, boxed2], caption=["Detected Face 1", "Detected Face 2"], width=300)
             
         except ValueError as ve:
-            st.error("Wajah tidak dikesan dengan jelas pada salah satu imej. Sila pastikan kedudukan wajah tegak memandang kamera dan pencahayaan mencukupi.")
+            st.error("Face not clearly detected in one of the images. Please ensure the face is looking straight at the camera and there is sufficient lighting.")
         except Exception as e:
-            st.error(f"Sistem mengalami ralat yang tidak dijangka: {e}")
+            st.error(f"The system encountered an unexpected error: {e}")
